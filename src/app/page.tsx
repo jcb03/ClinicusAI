@@ -31,6 +31,19 @@ const GmailIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Microsoft SVG Icon
+const MicrosoftIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M11.025 2.204H2.246v8.779h8.779V2.204zm0 9.804H2.246v8.779h8.779v-8.779zm1.028-9.804h8.779v8.779h-8.779V2.204zm0 9.804h8.779v8.779h-8.779v-8.779z"/>
+  </svg>
+);
+
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
@@ -945,7 +958,7 @@ export default function Home() {
 
           {/* Footer with external links */}
           <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-card">
-             <div className="flex space-x-8">
+             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8"> {/* Added flex-wrap and gap for better responsiveness */}
                  {/* LinkedIn Link */}
                  <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
                     <Linkedin className="h-10 w-10" data-ai-hint="linkedin logo" />
@@ -958,6 +971,10 @@ export default function Home() {
                  <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
                     <GmailIcon className="h-10 w-10" data-ai-hint="gmail logo" />
                  </a>
+                 {/* Microsoft Learn Link */}
+                 <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
+                    <MicrosoftIcon className="h-10 w-10" data-ai-hint="microsoft logo" />
+                 </a>
              </div>
           </footer>
         </div>
@@ -967,3 +984,6 @@ export default function Home() {
 }
 
 
+
+
+    
