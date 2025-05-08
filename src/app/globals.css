@@ -27,6 +27,8 @@ body {
     --border: 216 34% 17%;
     --input: 216 34% 17%;
     --ring: 55 79% 57%;
+    --warning: 45 90% 55%; /* Yellow for confidence */
+    --warning-foreground: 222 47% 11%;
     --radius: 0.5rem;
     --sidebar-width: 16rem; /* Added CSS variable */
     --sidebar-width-icon: 3.5rem; /* Added CSS variable */
@@ -67,6 +69,8 @@ body {
     --border: 216 34% 17%;
     --input: 216 34% 17%;
     --ring: 55 79% 57%;
+    --warning: 45 90% 55%; /* Yellow for confidence */
+    --warning-foreground: 210 20% 98%;
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 20% 98%;
     --sidebar-primary: 55 79% 57%;
@@ -110,8 +114,8 @@ body {
   margin-bottom: 0.5rem;
   padding: 0.5rem;
   border-radius: 0.25rem;
-  background-color: white; /* Changed to white */
-    color: black; /* Ensure text is readable */
+  background-color: hsl(var(--card)); 
+    color: hsl(var(--card-foreground));
 }
 
 .chat-history-item p {
@@ -154,5 +158,6 @@ body {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--primary)); /* Optional: Change color on hover */
 }
+
 
 

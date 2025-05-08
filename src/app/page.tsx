@@ -673,7 +673,7 @@ export default function Home() {
             {analysis.conditions.map((condition, index) => (
               <div key={index} className="mb-6 last:mb-0 pl-2 border-l-2 border-primary ml-1">
                 <p className="font-semibold text-base text-foreground">{condition.conditionName}</p>
-                <p className="text-primary font-medium text-sm">
+                <p className="text-[hsl(var(--warning))] font-medium text-sm">
                   Confidence: {condition.confidencePercentage.toFixed(1)}%
                 </p>
                 {condition.suggestedImprovements && condition.suggestedImprovements.length > 0 && (
