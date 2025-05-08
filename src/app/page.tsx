@@ -727,7 +727,7 @@ export default function Home() {
                 {chatHistory.map((item, index) => (
                   <div key={index} className="chat-history-item p-3 mb-2 rounded bg-card border border-border shadow-sm">
                      {/* Input: Truncate if sidebar is collapsed */}
-                     <p className={`input text-sm mb-1 ${isSidebarOpen ? '' : 'truncate'}`}>
+                     <p className={`input text-sm mb-1 text-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
                         <strong className="text-foreground">In:</strong> <span className="text-foreground">{item.input}</span>
                      </p>
                      {/* Diagnosis: Truncate if sidebar is collapsed */}
@@ -736,8 +736,8 @@ export default function Home() {
                      </p>
                       {/* Emotion: Show if available, truncate if collapsed */}
                      {item.emotion && (
-                         <p className={`emotion text-sm text-primary font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
-                             <strong className="text-primary">Em:</strong> {item.emotion}
+                         <p className={`emotion text-sm font-medium text-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
+                             <strong className="text-primary font-bold">Em:</strong> {item.emotion}
                          </p>
                      )}
                   </div>
@@ -987,6 +987,7 @@ export default function Home() {
 
 
     
+
 
 
 
