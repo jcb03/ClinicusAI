@@ -44,6 +44,19 @@ const MicrosoftIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+// Coursera SVG Icon (Simple Representation)
+const CourseraIcon = ({ className }: { className?: string }) => (
+    <svg
+        className={className}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+        aria-hidden="true"
+    >
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-3.5-9.5c0-.83.67-1.5 1.5-1.5h4c.83 0 1.5.67 1.5 1.5v3c0 .83-.67 1.5-1.5 1.5h-4c-.83 0-1.5-.67-1.5-1.5v-3zm1.5 0v3h4v-3h-4z" />
+    </svg>
+);
+
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
@@ -674,7 +687,7 @@ export default function Home() {
               <div key={index} className="mb-6 last:mb-0 pl-2 border-l-2 border-primary ml-1">
                 <p className="font-semibold text-base text-foreground">{condition.conditionName}</p>
                 <p className="text-primary font-bold text-sm">
-                  Confidence: {condition.confidencePercentage.toFixed(1)}%
+                  <span className="text-primary font-extrabold">Confidence:</span> {condition.confidencePercentage.toFixed(1)}%
                 </p>
                 {condition.suggestedImprovements && condition.suggestedImprovements.length > 0 && (
                      <div className="mt-2">
@@ -736,8 +749,8 @@ export default function Home() {
                      </p>
                       {/* Emotion: Show if available, truncate if collapsed */}
                      {item.emotion && (
-                         <p className={`emotion text-sm font-medium text-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
-                             <strong className="text-primary font-bold">Em:</strong> {item.emotion}
+                         <p className={`emotion text-sm font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
+                             <strong className="text-primary font-bold">Em:</strong> <span className="text-foreground">{item.emotion}</span>
                          </p>
                      )}
                   </div>
@@ -975,6 +988,10 @@ export default function Home() {
                  <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
                     <MicrosoftIcon className="h-10 w-10" data-ai-hint="microsoft logo" />
                  </a>
+                 {/* Coursera Link */}
+                 <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
+                    <CourseraIcon className="h-10 w-10" data-ai-hint="coursera logo" />
+                </a>
              </div>
           </footer>
         </div>
@@ -987,6 +1004,7 @@ export default function Home() {
 
 
     
+
 
 
 
