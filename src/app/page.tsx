@@ -855,7 +855,7 @@ export default function Home() {
                          </div>
                           {/* Placeholder shown when camera area is hidden */}
                          {!showCamera && (
-                            <div className="w-full aspect-video rounded-md bg-muted border border-dashed border-border flex items-center justify-center text-background">
+                            <div className="w-full aspect-video rounded-md bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground">
                                 Camera preview appears here when recording video
                             </div>
                           )}
@@ -870,7 +870,7 @@ export default function Home() {
                            {/* Placeholder when no analysis is running or done */}
                            {!isLoading && !lastTextAnalysis && !lastVoiceAnalysis && !lastVideoAnalysis && (
                             <Card className="border-dashed border-border bg-muted">
-                                <CardContent className="pt-6 text-center text-foreground">
+                                <CardContent className="pt-6 text-center text-muted-foreground">
                                     Analysis results will appear here. Provide input and click Analyze.
                                 </CardContent>
                             </Card>
@@ -1005,6 +1005,7 @@ export default function Home() {
 
 
     
+
 
 
 
