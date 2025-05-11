@@ -767,7 +767,7 @@ export default function Home() {
          <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[var(--sidebar-width)]' : 'md:ml-[var(--sidebar-width-icon)]'}`}> {/* Use CSS variables */}
            <header className="px-6 mb-6">
             <h1 className="text-3xl font-bold text-center tracking-tight">
-                <span className="text-4xl font-extrabold text-foreground">Therapy</span>
+                <span className="text-4xl font-extrabold text-foreground">Clinicus</span>
                 <span className="text-4xl font-extrabold text-primary">AI</span>
             </h1>
            </header>
@@ -890,7 +890,7 @@ export default function Home() {
              {/* Right Column: Chatbot */}
              <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-card shadow-inner"> {/* Added styling */}
                 <CardHeader className="p-2 border-b border-border"> {/* Chatbot title */}
-                    <CardTitle className="text-lg text-center font-semibold text-foreground">TherapyAI Chat</CardTitle>
+                    <CardTitle className="text-lg text-center font-semibold text-foreground">ClinicusAI Chat</CardTitle>
                 </CardHeader>
                 {/* Scrollable chat message area */}
                 <ScrollArea className="flex-grow h-[calc(100vh-400px)] p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}> {/* Added cast */}
@@ -1004,6 +1004,7 @@ export default function Home() {
 
 
     
+
 
 
 
