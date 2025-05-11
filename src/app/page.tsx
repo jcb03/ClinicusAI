@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useRef, useEffect, type RefObject } from "react"; // Added RefObject
@@ -686,7 +687,7 @@ export default function Home() {
             {analysis.conditions.map((condition, index) => (
               <div key={index} className="mb-6 last:mb-0 pl-2 border-l-2 border-primary ml-1">
                 <p className="font-semibold text-base text-foreground">{condition.conditionName}</p>
-                <p className="text-primary font-bold text-sm">
+                <p className="text-primary font-extrabold text-sm">
                   <span className="text-primary font-extrabold">Confidence:</span> {condition.confidencePercentage.toFixed(1)}%
                 </p>
                 {condition.suggestedImprovements && condition.suggestedImprovements.length > 0 && (
@@ -868,7 +869,7 @@ export default function Home() {
 
                            {/* Placeholder when no analysis is running or done */}
                            {!isLoading && !lastTextAnalysis && !lastVoiceAnalysis && !lastVideoAnalysis && (
-                            <Card className="border-dashed border-border bg-muted/50">
+                            <Card className="border-dashed border-border bg-muted">
                                 <CardContent className="pt-6 text-center text-foreground">
                                     Analysis results will appear here. Provide input and click Analyze.
                                 </CardContent>
@@ -1004,6 +1005,7 @@ export default function Home() {
 
 
     
+
 
 
 
