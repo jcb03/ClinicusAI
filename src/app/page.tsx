@@ -971,7 +971,7 @@ export default function Home() {
          </main>
 
           {/* Footer with external links */}
-          <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-card">
+          <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-muted">
              <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8"> {/* Added flex-wrap and gap for better responsiveness */}
                  {/* LinkedIn Link */}
                  <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
@@ -1005,6 +1005,7 @@ export default function Home() {
 
 
     
+
 
 
 
