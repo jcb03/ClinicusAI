@@ -680,7 +680,7 @@ export default function Home() {
     <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
       <Toaster />
       <div className="flex flex-col md:flex-row min-h-screen bg-background">
-         <Sidebar collapsible="icon" className="md:flex-shrink-0 border-r-2 border-primary"> 
+         <Sidebar collapsible="icon" className="md:flex-shrink-0"> 
           <SidebarHeader className="flex items-center justify-between p-2 border-b border-sidebar-border">
              <ConditionalSidebarHeaderTitle />
             <SidebarToggleButton />
