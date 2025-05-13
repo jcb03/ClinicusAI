@@ -65,8 +65,8 @@ const SidebarToggleButton = () => {
     <Button
       variant="ghost"
       size="icon"
-      onClick={toggleSidebar} // This will be a no-op for desktop due to provider changes
-      disabled={!isMobile} // Disable button on desktop as sidebar is unretractable
+      onClick={toggleSidebar} 
+      disabled={true} // Button is always disabled as sidebar is unretractable
       className="h-8 w-8 rounded-full hover:bg-primary/10 data-[state=open]:bg-accent"
     >
       <Menu className="h-6 w-6 text-primary" />
@@ -92,9 +92,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
-  // isSidebarOpen state is primarily for controlling the SidebarProvider's `open` prop if needed,
-  // but the provider itself will ensure desktop sidebar is always open.
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default to open, provider handles unretractable state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
 
   const [showCamera, setShowCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -111,47 +109,39 @@ export default function Home() {
   const [chatbotInput, setChatbotInput] = useState("");
   const [isBotLoading, setIsBotLoading] = useState(false);
   const [detectedCondition, setDetectedCondition] = useState<string | null>(null);
-  const chatContainerRef = useRef<HTMLDivElement>(null); // Ref for scrolling chat
-  const [isChatBotRecording, setIsChatBotRecording] = useState(false); // Chatbot voice recording state
-  const [chatBotMediaRecorder, setChatBotMediaRecorder] = useState<MediaRecorder | null>(null); // Chatbot media recorder instance
+  const chatContainerRef = useRef<HTMLDivElement>(null); 
+  const [isChatBotRecording, setIsChatBotRecording] = useState(false); 
+  const [chatBotMediaRecorder, setChatBotMediaRecorder] = useState<MediaRecorder | null>(null); 
 
   // --- Scroll chat to bottom ---
    useEffect(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [chatbotHistory]); // Dependency on chatbotHistory
+  }, [chatbotHistory]); 
 
 
    // --- Function to initiate chatbot conversation (used internally by handleAnalyze) ---
    const initiateChatbotWithCondition = async (condition: string | null) => {
-    // Only initiate if chatbot is not currently loading
     if (isBotLoading) return;
 
-    setDetectedCondition(condition); // Store the condition for subsequent turns
+    setDetectedCondition(condition); 
     setIsBotLoading(true);
 
-    // Get the current chat history *before* adding the new bot message
     const currentHistory = chatbotHistory;
 
-    // Call chatWithBot: Send empty user message, the *current* history, and the new condition.
-    // The prompt logic in chatbot-flow.ts handles initiating based on the condition.
     try {
         const response = await chatWithBot({
-            userMessage: "", // No explicit user message for this turn
-            conversationHistory: currentHistory, // Send history before this new bot turn
-            detectedCondition: condition, // Pass the newly detected condition
-             audioInputDataUri: undefined, // Ensure no audio is sent in this case
+            userMessage: "", 
+            conversationHistory: currentHistory, 
+            detectedCondition: condition, 
+             audioInputDataUri: undefined, 
         });
-        // Add the bot's new, condition-aware response to the history.
-        // Replace previous bot message if it was just analysis confirmation
         setChatbotHistory(prev => {
             const lastMessage = prev[prev.length - 1];
             if (lastMessage?.role === 'model' && lastMessage.text.includes("Analysis complete")) {
-                 // Replace the generic analysis completion message
                  return [...prev.slice(0, -1), { role: 'model', text: response.botResponse }];
             } else {
-                 // Append the new message
                 return [...prev, { role: 'model', text: response.botResponse }];
             }
         });
@@ -171,38 +161,34 @@ export default function Home() {
     // --- Function to send text OR audio message to chatbot ---
    const handleSendMessageToBot = async (audioDataUri?: string) => {
     const textMessage = chatbotInput.trim();
-    if ((!textMessage && !audioDataUri) || isBotLoading) return; // Need text or audio
+    if ((!textMessage && !audioDataUri) || isBotLoading) return; 
 
-    // Determine the user message type (text or placeholder for audio)
     const userMessageContent = audioDataUri ? "🎤 Voice Input" : textMessage;
     const newUserMessage: ChatMessage = { role: 'user', text: userMessageContent };
     const updatedHistory = [...chatbotHistory, newUserMessage];
 
     setChatbotHistory(updatedHistory);
-    setChatbotInput(""); // Clear text input immediately
+    setChatbotInput(""); 
     setIsBotLoading(true);
 
     try {
          console.log("Sending to chatWithBot:", {
             userMessage: audioDataUri ? undefined : textMessage,
-            audioInputDataUri: audioDataUri ? `data:${audioDataUri.substring(5, audioDataUri.indexOf(';'))};base64,...(length ${audioDataUri.length})` : undefined, // Log mime type and length
-            conversationHistoryLength: chatbotHistory.length, // Use history *before* new user message
+            audioInputDataUri: audioDataUri ? `data:${audioDataUri.substring(5, audioDataUri.indexOf(';'))};base64,...(length ${audioDataUri.length})` : undefined, 
+            conversationHistoryLength: chatbotHistory.length, 
             detectedCondition: detectedCondition,
         });
-        // Send the history *before* the latest user message was added
-        // Pass audio or text to the flow
         const response = await chatWithBot({
-            userMessage: audioDataUri ? undefined : textMessage, // Send text only if no audio
-            audioInputDataUri: audioDataUri, // Send audio if provided
-            conversationHistory: chatbotHistory, // Pass history *before* the new user message
+            userMessage: audioDataUri ? undefined : textMessage, 
+            audioInputDataUri: audioDataUri, 
+            conversationHistory: chatbotHistory, 
             detectedCondition: detectedCondition,
         });
         setChatbotHistory([...updatedHistory, { role: 'model', text: response.botResponse }]);
     } catch (error: any) {
         console.error("Error sending message to chatbot:", error);
-        // Display specific backend error message if available
         const errorMessage = error?.message?.includes("Schema validation failed")
-           ? "Chatbot processing error. Please try again." // Generic for schema validation
+           ? "Chatbot processing error. Please try again." 
            : error?.message?.includes("503 Service Unavailable")
            ? "Chatbot service is currently busy. Please try again."
            : error.message || "Failed to get response from chatbot.";
@@ -222,14 +208,13 @@ export default function Home() {
    // --- Handle pressing Enter in chatbot input ---
     const handleChatInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault(); // Prevent default form submission or line break
-            handleSendMessageToBot(); // Sends text message
+            event.preventDefault(); 
+            handleSendMessageToBot(); 
         }
     };
 
 
   const handleAnalyze = async () => {
-     // Basic validation before sending to backend
     if (!textInput && !voiceInputDataUri && !videoInputDataUri) {
         toast({
             title: "Input Required",
@@ -240,18 +225,12 @@ export default function Home() {
     }
 
     setIsLoading(true);
-    // Clear previous *analysis* results before starting new analysis
     setLastTextAnalysis(null);
     setLastVoiceAnalysis(null);
     setLastVideoAnalysis(null);
-    // DO NOT clear chatbot history here
-    // Reset detected condition state before analysis; it will be updated after.
-    // setDetectedCondition(null); // Updated after analysis instead
-
-    // Keep current input in history temporarily
+    
     let currentInputDisplay = textInput || (voiceInputDataUri ? 'Voice Input' : (videoInputDataUri ? 'Video Input' : 'Input'));
     let tempHistoryItem = { input: currentInputDisplay, diagnosis: 'Analyzing...', emotion: null };
-    // Add temporary item and keep last 4 actual results + the temp one (total 5 items max visible during loading)
     setChatHistory(prevHistory => [tempHistoryItem, ...prevHistory.slice(0, 4)]);
 
     try {
@@ -262,15 +241,13 @@ export default function Home() {
       });
 
       let newHistoryItems: typeof chatHistory = [];
-      let primaryCondition: string | null = null; // To store the first significant condition
+      let primaryCondition: string | null = null; 
 
-      // Process and update state for each analysis type
       if (result.textAnalysis) {
         setLastTextAnalysis(result.textAnalysis);
         const textDiagnosis = result.textAnalysis.conditions.map(c => `${c.conditionName} (${c.confidencePercentage.toFixed(1)}%)`).join(', ');
         const emotion = result.textAnalysis.emotion;
         newHistoryItems.push({ input: textInput || "Text Input", diagnosis: textDiagnosis || 'N/A', emotion: emotion });
-         // Set primary condition if not already set and condition exists
          if (!primaryCondition && result.textAnalysis.conditions.length > 0) {
             primaryCondition = result.textAnalysis.conditions[0].conditionName;
          }
@@ -296,31 +273,22 @@ export default function Home() {
          }
       }
 
-       // Update chat history: remove the temporary "Analyzing..." item and add new results
-      // Keep the last 5 actual results
       setChatHistory(prevHistory => [
           ...newHistoryItems,
           ...prevHistory.filter(item => item.diagnosis !== 'Analyzing...').slice(0, 5 - newHistoryItems.length)
       ]);
 
-       // Update detected condition state for future chat interactions
        setDetectedCondition(primaryCondition);
 
-       // **Initiate chatbot response based on the analysis outcome**
        if (primaryCondition) {
-           // Call the function to add a new message based on the detected condition
            await initiateChatbotWithCondition(primaryCondition);
        } else {
-           // If no condition detected, send a generic message confirming analysis completion.
-           // Use setChatbotHistory directly to add the message without triggering the condition logic.
-           // Avoid adding duplicate messages if the bot is already loading or just finished.
            setChatbotHistory(prev => {
                 const lastMessage = prev[prev.length - 1];
-                 // Only add if the last message wasn't already this or if bot isn't loading
                 if (!isBotLoading && lastMessage?.text !== "Analysis complete. No specific condition was strongly indicated. Let me know if you'd like to discuss the results or anything else!") {
                     return [...prev, { role: 'model', text: "Analysis complete. No specific condition was strongly indicated. Let me know if you'd like to discuss the results or anything else!" }];
                 }
-                return prev; // Otherwise, don't change history
+                return prev; 
             });
        }
 
@@ -343,21 +311,18 @@ export default function Home() {
             variant: "destructive",
           });
       }
-       // Remove the temporary 'Analyzing...' item from history on error
        setChatHistory(prevHistory => prevHistory.filter(item => item.diagnosis !== 'Analyzing...'));
-       // Add error message to chatbot history
         setChatbotHistory(prev => [...prev, { role: 'model', text: `Sorry, there was an error during the analysis: ${errorMessage}` }]);
-       setDetectedCondition(null); // Reset condition on error
+       setDetectedCondition(null); 
     } finally {
-      setTextInput(""); // Clear text input after analysis
-      setVoiceInputDataUri(null); // Clear voice data URI after analysis
-      setVideoInputDataUri(null); // Clear video data URI after analysis
-       // Stop camera stream only if it's active and not needed for a retry
+      setTextInput(""); 
+      setVoiceInputDataUri(null); 
+      setVideoInputDataUri(null); 
        if (videoRef.current && videoRef.current.srcObject && !isRecordingVideo) {
             const stream = videoRef.current.srcObject as MediaStream;
-            stream.getTracks().forEach(track => track.stop()); // Stop camera stream
+            stream.getTracks().forEach(track => track.stop()); 
             videoRef.current.srcObject = null;
-            setShowCamera(false); // Hide camera view after stopping
+            setShowCamera(false); 
         }
       setIsLoading(false);
     }
@@ -373,13 +338,13 @@ export default function Home() {
 
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) { // Ensure data is pushed
+        if (e.data.size > 0) { 
              chunks.push(e.data);
         }
       };
 
       recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: "audio/webm" }); // Adjust mime type if needed
+        const blob = new Blob(chunks, { type: "audio/webm" }); 
         const reader = new FileReader();
         reader.readAsDataURL(blob);
         reader.onloadend = () => {
@@ -388,7 +353,7 @@ export default function Home() {
           console.log("Voice recording stopped, data URI set for analysis.");
            toast({ title: "Recording Complete", description: "Voice input ready for analysis." });
         };
-        stream.getTracks().forEach(track => track.stop()); // Stop stream after recording
+        stream.getTracks().forEach(track => track.stop()); 
         setIsRecordingVoice(false);
       };
 
@@ -410,7 +375,6 @@ export default function Home() {
     if (mediaRecorderVoice && isRecordingVoice) {
       mediaRecorderVoice.stop();
       console.log("Stopping voice recording...");
-       // Stream stopped in onstop handler
     }
   };
 
@@ -418,14 +382,13 @@ export default function Home() {
   const startChatBotRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-       // Use a specific mimeType if possible, fallback to default
        let options = { mimeType: 'audio/webm;codecs=opus' };
        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
            console.warn(`${options.mimeType} not supported, trying audio/webm`);
            options = { mimeType: 'audio/webm' };
            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 console.warn(`audio/webm not supported, using default`);
-                options = { mimeType: '' }; // Browser default
+                options = { mimeType: '' }; 
             }
        }
        console.log("Using mimeType for chatbot recording:", options.mimeType || 'browser default');
@@ -435,7 +398,7 @@ export default function Home() {
 
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {
-         if (e.data.size > 0) { // Ensure data is pushed
+         if (e.data.size > 0) { 
             console.log(`Chatbot recording chunk size: ${e.data.size}`);
             chunks.push(e.data);
          } else {
@@ -449,7 +412,7 @@ export default function Home() {
              toast({ title: "Recording Error", description: "No audio data was captured.", variant: "destructive" });
              setIsChatBotRecording(false);
              stream.getTracks().forEach(track => track.stop());
-             return; // Exit early
+             return; 
         }
 
         const blob = new Blob(chunks, { type: options.mimeType || 'audio/webm' });
@@ -459,7 +422,6 @@ export default function Home() {
         reader.onloadend = () => {
           const base64data = reader.result as string;
           console.log("Chatbot recording data URI ready (first 50 chars):", base64data ? base64data.substring(0, 50) + '...' : 'null', `Full length: ${base64data?.length}`);
-          // Send the audio data to the chatbot flow
           if (base64data) {
              handleSendMessageToBot(base64data);
           } else {
@@ -471,15 +433,13 @@ export default function Home() {
              console.error("FileReader error during chatbot recording processing:", error);
              toast({ title: "Processing Error", description: "Could not read recorded audio data.", variant: "destructive"});
          };
-        stream.getTracks().forEach(track => track.stop()); // Stop stream after recording
+        stream.getTracks().forEach(track => track.stop()); 
         setIsChatBotRecording(false);
       };
 
        recorder.onerror = (event: Event) => {
            console.error("Chatbot MediaRecorder error:", event);
-            // Check for specific error types if available
             let errorMsg = "An error occurred during chatbot audio recording.";
-            // ErrorEvent might not be standard, check properties directly
              if (event && 'error' in event) {
                 const error = (event as any).error;
                 if (error instanceof DOMException) {
@@ -516,27 +476,24 @@ export default function Home() {
     if (chatBotMediaRecorder && isChatBotRecording) {
       chatBotMediaRecorder.stop();
        console.log("Stopping chatbot recording...");
-       // Stream stopped in onstop handler
     }
   };
 
 
   // --- Video Recording Logic ---
    useEffect(() => {
-        // Cleanup function to stop streams and recorders on component unmount
         return () => {
              if (videoRef.current && videoRef.current.srcObject) {
                 const stream = videoRef.current.srcObject as MediaStream;
                 stream.getTracks().forEach(track => track.stop());
             }
-             // Ensure all recorders are stopped
             [mediaRecorderVoice, mediaRecorderVideo, chatBotMediaRecorder].forEach(recorder => {
                  if (recorder && recorder.state !== 'inactive') {
                     recorder.stop();
                 }
             });
         };
-    }, [mediaRecorderVoice, mediaRecorderVideo, chatBotMediaRecorder]); // Add all recorder states as dependencies
+    }, [mediaRecorderVoice, mediaRecorderVideo, chatBotMediaRecorder]); 
 
   const requestCameraAndStartStream = async (): Promise<MediaStream | null> => {
       try {
@@ -544,10 +501,9 @@ export default function Home() {
             setHasCameraPermission(true);
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
-                 // Ensure video plays, catch potential errors
                  videoRef.current.play().catch(e => console.error("Video play error:", e));
             }
-             setShowCamera(true); // Show camera now that stream is acquired
+             setShowCamera(true); 
             return stream;
         } catch (error) {
             console.error('Error accessing camera/mic:', error);
@@ -557,7 +513,7 @@ export default function Home() {
                 title: 'Camera/Mic Access Denied',
                 description: 'Please enable camera and microphone permissions.',
             });
-            setShowCamera(false); // Ensure camera view is hidden if permission denied
+            setShowCamera(false); 
             return null;
         }
   };
@@ -565,19 +521,15 @@ export default function Home() {
 
   const startRecordingVideo = async () => {
     setVideoInputDataUri(null);
-    setShowCamera(true); // Show the camera area immediately
+    setShowCamera(true); 
 
-    // Request permission and stream *after* showing the camera area
     const stream = await requestCameraAndStartStream();
     if (!stream) {
-         // If stream fails (e.g., permission denied), keep camera area shown with error/message
-         // Handled within requestCameraAndStartStream
         return;
     }
 
 
     try {
-        // Attempt to find a supported mimeType
        let options = { mimeType: 'video/webm;codecs=vp9,opus' };
        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
            console.log(options.mimeType + ' is not Supported');
@@ -587,7 +539,7 @@ export default function Home() {
                options = { mimeType: 'video/webm' };
                 if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                    console.log(options.mimeType + ' is not Supported');
-                   options = { mimeType: '' }; // Fallback to browser default
+                   options = { mimeType: '' }; 
                 }
            }
        }
@@ -598,7 +550,7 @@ export default function Home() {
 
       const chunks: Blob[] = [];
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) { // Ensure chunks are not empty
+        if (e.data.size > 0) { 
             chunks.push(e.data);
         }
       };
@@ -611,7 +563,7 @@ export default function Home() {
              stream.getTracks().forEach(track => track.stop());
               if (videoRef.current) videoRef.current.srcObject = null;
               setShowCamera(false);
-             return; // Exit early
+             return; 
         }
         const blob = new Blob(chunks, { type: options.mimeType || 'video/webm' });
         const reader = new FileReader();
@@ -626,27 +578,20 @@ export default function Home() {
              console.error("FileReader error during video recording processing:", error);
              toast({ title: "Processing Error", description: "Could not read recorded video data.", variant: "destructive"});
          };
-        // Don't stop tracks here initially, allow analysis function to stop them
-        // stream.getTracks().forEach(track => track.stop());
-        // if (videoRef.current) videoRef.current.srcObject = null;
         setIsRecordingVideo(false);
-        // Keep camera showing until analysis completes or errors out
-        // setShowCamera(false);
       };
 
         recorder.onerror = (event: Event) => {
             console.error("MediaRecorder error:", event);
             let errorDetail = 'Unknown error';
-             // Try to get more specific error information
-            if ('error' in event && (event as any).error instanceof DOMException) {
+             if ('error' in event && (event as any).error instanceof DOMException) {
                 errorDetail = (event as any).error.message;
             }
              toast({ title: "Recording Error", description: `An error occurred during video recording: ${errorDetail}`, variant:"destructive" });
-             // Clean up on error
-             stream?.getTracks().forEach(track => track.stop()); // Use optional chaining
+             stream?.getTracks().forEach(track => track.stop()); 
              if (videoRef.current) videoRef.current.srcObject = null;
              setIsRecordingVideo(false);
-             setShowCamera(false); // Hide camera on error
+             setShowCamera(false); 
         };
 
       recorder.start();
@@ -660,10 +605,10 @@ export default function Home() {
         description: error.message || "Failed to initialize video recording.",
         variant: "destructive",
       });
-        stream?.getTracks().forEach(track => track.stop()); // Clean up stream
+        stream?.getTracks().forEach(track => track.stop()); 
         if (videoRef.current) videoRef.current.srcObject = null;
       setIsRecordingVideo(false);
-      setShowCamera(false); // Hide camera on setup error
+      setShowCamera(false); 
     }
   };
 
@@ -671,14 +616,9 @@ export default function Home() {
     if (mediaRecorderVideo && isRecordingVideo) {
       mediaRecorderVideo.stop();
       console.log("Stopping video recording...");
-       // Note: stream is stopped in onstop or onerror handlers, or after analysis
     }
   };
 
-  // --- Sidebar Toggle ---
-  // const toggleSidebar = () => { // This function is now managed by SidebarProvider/useSidebar
-  //   setIsSidebarOpen(!isSidebarOpen);
-  // };
 
    // --- Helper to render analysis results ---
   const renderAnalysisResult = (title: string, analysis: AnalysisResult | null) => {
@@ -725,10 +665,8 @@ export default function Home() {
             ))}
             </>
           ) : (
-              // Show different messages based on whether emotion was detected or not
               !analysis.emotion && <p className="text-card-foreground italic">No significant conditions or emotions detected for {inputType}.</p>
           )}
-           {/* Message when no conditions but emotion detected */}
            {analysis.conditions.length === 0 && analysis.emotion && <p className="text-card-foreground italic">No significant conditions detected for {inputType}.</p>}
 
 
@@ -742,11 +680,8 @@ export default function Home() {
     <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
       <Toaster />
       <div className="flex flex-col md:flex-row min-h-screen bg-background">
-         {/* Sidebar: Desktop is unretractable due to provider changes. Mobile uses sheet. */}
-         <Sidebar collapsible="icon" className="md:flex-shrink-0"> {/* collapsible="icon" for styling if ever collapsed (mobile) */}
+         <Sidebar collapsible="icon" className="md:flex-shrink-0 border-r-2 border-primary"> 
           <SidebarHeader className="flex items-center justify-between p-2 border-b border-sidebar-border">
-             {/* Conditionally render title based on sidebar internal state (always open on desktop) */}
-             {/* Accessing 'open' from context for header visibility check */}
              <ConditionalSidebarHeaderTitle />
             <SidebarToggleButton />
           </SidebarHeader>
@@ -762,20 +697,19 @@ export default function Home() {
                      </p>
                      {item.emotion && (
                          <p className={`emotion text-sm font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
-                             <strong className="text-primary font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
+                             <strong className="text-card-foreground font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
                          </p>
                      )}
                   </div>
                 ))}
-                 {chatHistory.length === 0 && isSidebarOpen && (
+                 {chatHistory.length === 0 && (
                      <p className="text-sm text-muted-foreground p-4 text-center">No history yet.</p>
                  )}
               </div>
           </SidebarContent>
         </Sidebar>
 
-        {/* Main Content Area: Adjusts margin based on sidebar state (always expanded on desktop) */}
-         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out md:ml-[var(--sidebar-width)]`}> {/* Desktop margin is now static */}
+         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out md:ml-[var(--sidebar-width)]`}> 
            <header className="px-6 mb-6">
             <h1 className="text-3xl font-bold text-center tracking-tight">
                 <span className="text-4xl font-extrabold text-foreground">Clinicus</span>
@@ -984,16 +918,14 @@ export default function Home() {
   );
 }
 
-// Component to conditionally render sidebar title based on context
-// This is to avoid calling useSidebar directly in the Home component's render path
-// before SidebarProvider is established, if isSidebarOpen from Home's state was used directly.
 const ConditionalSidebarHeaderTitle = () => {
-  const { open, isMobile } = useSidebar(); // Use context's 'open' state
-  // On desktop, sidebar is always open as per provider logic.
-  // On mobile, 'open' refers to the sheet state.
+  const { open, isMobile } = useSidebar(); 
   const shouldShowTitle = isMobile ? open : true;
 
   return shouldShowTitle ? (
     <h2 className="text-lg font-bold tracking-tight ml-2 text-sidebar-foreground">Chat History</h2>
   ) : null;
 };
+
+
+    
