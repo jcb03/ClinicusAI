@@ -718,7 +718,7 @@ export default function Home() {
            </header>
 
           <main className="flex-grow flex justify-center items-start px-4 md:px-6 lg:px-8">
-             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-6 flex flex-col lg:flex-row gap-8 bg-card">
+             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-6 flex flex-col lg:flex-row gap-8 bg-[#F2F0EF]">
 
             <div className="flex flex-col lg:w-2/3 w-full space-y-6">
                  <div className="flex flex-col md:flex-row gap-6">
@@ -929,3 +929,5 @@ const ConditionalSidebarHeaderTitle = () => {
 
 
     
+
+      
