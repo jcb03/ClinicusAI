@@ -13,7 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea f
 import { useToast } from "@/hooks/use-toast";
 import { Mic, Camera, Menu, Send, Github, Linkedin } from "lucide-react"; // Added Send, Github, and Linkedin icons
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider, useSidebar } from "@/components/ui/sidebar"; // Imported useSidebar
 import { Toaster } from "@/components/ui/toaster";
 
 // Define a type for individual analysis results (conditions + emotion)
@@ -58,6 +58,23 @@ const CourseraIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+// Inner component to consume sidebar context for the trigger button
+const SidebarToggleButton = () => {
+  const { toggleSidebar, isMobile } = useSidebar();
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar} // This will be a no-op for desktop due to provider changes
+      disabled={!isMobile} // Disable button on desktop as sidebar is unretractable
+      className="h-8 w-8 rounded-full hover:bg-primary/10 data-[state=open]:bg-accent"
+    >
+      <Menu className="h-6 w-6 text-primary" />
+      <span className="sr-only">Toggle Sidebar</span>
+    </Button>
+  );
+};
+
 
 export default function Home() {
   const [textInput, setTextInput] = useState("");
@@ -74,7 +91,11 @@ export default function Home() {
   >([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default to open
+  
+  // isSidebarOpen state is primarily for controlling the SidebarProvider's `open` prop if needed,
+  // but the provider itself will ensure desktop sidebar is always open.
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Default to open, provider handles unretractable state
+
   const [showCamera, setShowCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(false);
@@ -655,9 +676,9 @@ export default function Home() {
   };
 
   // --- Sidebar Toggle ---
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+  // const toggleSidebar = () => { // This function is now managed by SidebarProvider/useSidebar
+  //   setIsSidebarOpen(!isSidebarOpen);
+  // };
 
    // --- Helper to render analysis results ---
   const renderAnalysisResult = (title: string, analysis: AnalysisResult | null) => {
@@ -718,37 +739,27 @@ export default function Home() {
 
 
   return (
-    // Use the original component name
     <SidebarProvider open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
       <Toaster />
-      <div className="flex flex-col md:flex-row min-h-screen bg-background"> {/* Ensure flex-col on mobile, flex-row on md+ */}
-         {/* Sidebar: collapsible="icon" makes it shrink */}
-         <Sidebar collapsible="icon" className="md:flex-shrink-0"> {/* Ensure sidebar doesn't shrink main content area on mobile */}
+      <div className="flex flex-col md:flex-row min-h-screen bg-background">
+         {/* Sidebar: Desktop is unretractable due to provider changes. Mobile uses sheet. */}
+         <Sidebar collapsible="icon" className="md:flex-shrink-0"> {/* collapsible="icon" for styling if ever collapsed (mobile) */}
           <SidebarHeader className="flex items-center justify-between p-2 border-b border-sidebar-border">
-             {/* Conditionally render title based on sidebar state */}
-             {isSidebarOpen && (
-               <h2 className="text-lg font-bold tracking-tight ml-2 text-sidebar-foreground">Chat History</h2>
-             )}
-            {/* Button to toggle sidebar */}
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="h-8 w-8 rounded-full hover:bg-primary/10 data-[state=open]:bg-accent">
-              <Menu className="h-6 w-6 text-primary"/>
-              <span className="sr-only">Toggle Sidebar</span>
-            </Button>
+             {/* Conditionally render title based on sidebar internal state (always open on desktop) */}
+             {/* Accessing 'open' from context for header visibility check */}
+             <ConditionalSidebarHeaderTitle />
+            <SidebarToggleButton />
           </SidebarHeader>
           <SidebarContent className="p-0">
-             {/* Scrollable chat history area */}
              <div className="chat-history p-2 overflow-y-auto">
                 {chatHistory.map((item, index) => (
                   <div key={index} className="chat-history-item p-3 mb-2 rounded bg-card border border-border shadow-sm">
-                     {/* Input: Truncate if sidebar is collapsed */}
                      <p className={`input text-sm mb-1 text-card-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
                         <strong className="text-card-foreground">In:</strong> <span className="text-card-foreground">{item.input}</span>
                      </p>
-                     {/* Diagnosis: Truncate if sidebar is collapsed */}
                      <p className={`diagnosis text-sm font-medium text-card-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
                         <strong className="text-card-foreground">Dx:</strong> {item.diagnosis || 'N/A'}
                      </p>
-                      {/* Emotion: Show if available, truncate if collapsed */}
                      {item.emotion && (
                          <p className={`emotion text-sm font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
                              <strong className="text-primary font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
@@ -756,7 +767,6 @@ export default function Home() {
                      )}
                   </div>
                 ))}
-                 {/* Placeholder if history is empty and sidebar is open */}
                  {chatHistory.length === 0 && isSidebarOpen && (
                      <p className="text-sm text-muted-foreground p-4 text-center">No history yet.</p>
                  )}
@@ -764,8 +774,8 @@ export default function Home() {
           </SidebarContent>
         </Sidebar>
 
-        {/* Main Content Area: Adjusts margin based on sidebar state */}
-         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'md:ml-[var(--sidebar-width)]' : 'md:ml-[var(--sidebar-width-icon)]'}`}> {/* Use CSS variables */}
+        {/* Main Content Area: Adjusts margin based on sidebar state (always expanded on desktop) */}
+         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out md:ml-[var(--sidebar-width)]`}> {/* Desktop margin is now static */}
            <header className="px-6 mb-6">
             <h1 className="text-3xl font-bold text-center tracking-tight">
                 <span className="text-4xl font-extrabold text-foreground">Clinicus</span>
@@ -773,16 +783,11 @@ export default function Home() {
             </h1>
            </header>
 
-           {/* Input, Camera/Results, and Chatbot Section */}
           <main className="flex-grow flex justify-center items-start px-4 md:px-6 lg:px-8">
-             {/* Container for the three main sections */}
-             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-6 flex flex-col lg:flex-row gap-8 bg-card"> {/* Use max-w-7xl for wider content, increased gap */}
+             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-6 flex flex-col lg:flex-row gap-8 bg-card">
 
-             {/* Left Column: Input & Analysis */}
-            <div className="flex flex-col lg:w-2/3 w-full space-y-6"> {/* Occupies 2/3 width on large screens */}
-                 {/* Top Row: Text Input, Buttons, Camera/Results */}
+            <div className="flex flex-col lg:w-2/3 w-full space-y-6">
                  <div className="flex flex-col md:flex-row gap-6">
-                    {/* Left Side: Text Input and Buttons */}
                     <div className="flex flex-col md:w-1/2 w-full space-y-4">
                       <Textarea
                         placeholder="Describe how you're feeling..."
@@ -792,11 +797,11 @@ export default function Home() {
                         aria-label="Text input for mental health analysis"
                       />
 
-                      <div className="flex items-center justify-between space-x-3"> {/* Ensure space between buttons */}
+                      <div className="flex items-center justify-between space-x-3">
                          <Button
                             variant={isRecordingVoice ? "destructive" : "outline"}
                             onClick={isRecordingVoice ? stopRecordingVoice : startRecordingVoice}
-                            disabled={isLoading || isRecordingVideo} // Disable if loading or recording video
+                            disabled={isLoading || isRecordingVideo}
                             className="h-12 flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
                             aria-label={isRecordingVoice ? "Stop voice recording" : "Start voice recording"}
                          >
@@ -807,7 +812,7 @@ export default function Home() {
                         <Button
                             variant={isRecordingVideo ? "destructive" : "outline"}
                             onClick={isRecordingVideo ? stopRecordingVideo : startRecordingVideo}
-                            disabled={isLoading || isRecordingVoice} // Disable if loading or recording voice
+                            disabled={isLoading || isRecordingVoice}
                             className="h-12 flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
                             aria-label={isRecordingVideo ? "Stop video recording" : "Start video recording"}
                         >
@@ -818,7 +823,7 @@ export default function Home() {
 
                       <Button
                          onClick={handleAnalyze}
-                         disabled={isLoading || isRecordingVoice || isRecordingVideo} // Disable if loading or recording
+                         disabled={isLoading || isRecordingVoice || isRecordingVideo}
                          className="w-full h-14 text-lg font-semibold rounded-md shadow-md bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
                          aria-label="Analyze input"
                        >
@@ -826,20 +831,16 @@ export default function Home() {
                       </Button>
                     </div>
 
-                     {/* Right Side: Camera View and Results - Align top edge */}
                     <div className="md:w-1/2 w-full flex flex-col space-y-4">
-                         {/* Camera View Area */}
                         <div className={`w-full aspect-video rounded-md bg-muted flex items-center justify-center border border-dashed border-border overflow-hidden relative ${showCamera ? 'block' : 'hidden'}`}>
-                             {/* The video element itself */}
                             <video
                                 ref={videoRef}
-                                className={`w-full h-full object-cover rounded-md ${hasCameraPermission ? 'block' : 'hidden'}`} // Show only if permission granted
+                                className={`w-full h-full object-cover rounded-md ${hasCameraPermission ? 'block' : 'hidden'}`}
                                 autoPlay
-                                muted // Mute preview to avoid feedback
-                                playsInline // Important for mobile browsers
+                                muted
+                                playsInline
                                 aria-label="Camera preview"
                             />
-                             {/* Message shown if camera area is visible but permission denied */}
                              {showCamera && !hasCameraPermission && (
                                 <Alert variant="destructive" className="absolute inset-4 m-auto max-w-sm">
                                      <AlertTitle>Camera/Mic Access Needed</AlertTitle>
@@ -848,26 +849,21 @@ export default function Home() {
                                      </AlertDescription>
                                 </Alert>
                              )}
-                              {/* Placeholder while camera starts (if permission granted but stream not ready) */}
                               {showCamera && !videoRef.current?.srcObject && hasCameraPermission && (
                                    <p className="absolute inset-0 flex items-center justify-center text-muted-foreground">Starting camera...</p>
                               )}
                          </div>
-                          {/* Placeholder shown when camera area is hidden */}
                          {!showCamera && (
                             <div className="w-full aspect-video rounded-md bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground">
                                 Camera preview appears here when recording video
                             </div>
                           )}
 
-                      {/* Results Area: Scrollable */}
-                       <div className="w-full space-y-4 overflow-y-auto max-h-[calc(100vh-450px)] pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-card"> {/* Adjusted max-height, added scrollbar styling */}
-                         {/* Render analysis results for each type */}
+                       <div className="w-full space-y-4 overflow-y-auto max-h-[calc(100vh-450px)] pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-card">
                          {renderAnalysisResult("Text Analysis", lastTextAnalysis)}
                          {renderAnalysisResult("Voice Analysis", lastVoiceAnalysis)}
                          {renderAnalysisResult("Video Analysis", lastVideoAnalysis)}
 
-                           {/* Placeholder when no analysis is running or done */}
                            {!isLoading && !lastTextAnalysis && !lastVoiceAnalysis && !lastVideoAnalysis && (
                             <Card className="border-dashed border-border bg-muted">
                                 <CardContent className="pt-6 text-center text-muted-foreground">
@@ -875,8 +871,7 @@ export default function Home() {
                                 </CardContent>
                             </Card>
                            )}
-                            {/* Loading indicator during analysis */}
-                             {isLoading && !lastTextAnalysis && !lastVoiceAnalysis && !lastVideoAnalysis && ( // Show loading only if no results yet
+                             {isLoading && !lastTextAnalysis && !lastVoiceAnalysis && !lastVideoAnalysis && (
                                 <Card className="border-dashed border-border bg-primary/10">
                                     <CardContent className="pt-6 text-center text-primary font-semibold">
                                         Analyzing... Please wait.
@@ -888,31 +883,28 @@ export default function Home() {
                  </div>
             </div>
 
-             {/* Right Column: Chatbot */}
-             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-card shadow-inner"> {/* Added styling */}
-                <CardHeader className="p-2 border-b border-border"> {/* Chatbot title */}
+             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-card shadow-inner">
+                <CardHeader className="p-2 border-b border-border">
                     <CardTitle className="text-lg text-center font-semibold text-card-foreground">ClinicusAI Chat</CardTitle>
                 </CardHeader>
-                {/* Scrollable chat message area */}
-                <ScrollArea className="flex-grow h-[calc(100vh-400px)] p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}> {/* Added cast */}
+                <ScrollArea className="flex-grow h-[calc(100vh-400px)] p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}>
                     <div className="space-y-4">
                         {chatbotHistory.map((msg, index) => (
                             <div
                                 key={index}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`} // Align messages
+                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
-                                    className={`px-4 py-2 rounded-lg max-w-[80%] ${ // Chat bubble styling
+                                    className={`px-4 py-2 rounded-lg max-w-[80%] ${
                                         msg.role === 'user'
-                                            ? 'bg-primary text-primary-foreground' // User message style
-                                            : 'bg-muted text-muted-foreground' // Bot message style
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'bg-muted text-muted-foreground'
                                     }`}
                                 >
                                     {msg.text}
                                 </div>
                             </div>
                         ))}
-                         {/* Loading indicator for bot response */}
                          {isBotLoading && chatbotHistory.length > 0 && (
                             <div className="flex justify-start">
                                 <div className="px-4 py-2 rounded-lg bg-muted text-muted-foreground max-w-[80%]">
@@ -920,13 +912,11 @@ export default function Home() {
                                 </div>
                             </div>
                         )}
-                         {/* Placeholder message when chat is empty and not loading */}
                          {chatbotHistory.length === 0 && !isBotLoading && !isLoading &&(
                             <p className="text-center text-muted-foreground italic">
                                 Chatbot will respond here. Start chatting or analyze input.
                             </p>
                          )}
-                         {/* Message while analysis is running */}
                          {isLoading && (
                              <p className="text-center text-muted-foreground italic">
                                 Analysis in progress... Chat available after completion.
@@ -934,30 +924,29 @@ export default function Home() {
                          )}
                     </div>
                 </ScrollArea>
-                {/* Chat input area */}
                 <div className="flex items-center space-x-2 p-2 border-t border-border">
                      <Button
                         variant={isChatBotRecording ? "destructive" : "ghost"}
                         size="icon"
                         onClick={isChatBotRecording ? stopChatBotRecording : startChatBotRecording}
-                        disabled={isBotLoading} // Disable if bot is thinking
+                        disabled={isBotLoading}
                         aria-label={isChatBotRecording ? "Stop chatbot voice input" : "Start chatbot voice input"}
                       >
-                        <Mic className={`h-5 w-5 ${isChatBotRecording ? 'text-destructive-foreground' : 'text-card-foreground'}`} /> {/* Use card-foreground color */}
+                        <Mic className={`h-5 w-5 ${isChatBotRecording ? 'text-destructive-foreground' : 'text-card-foreground'}`} />
                       </Button>
                     <Input
                         type="text"
-                        placeholder="Type or use mic..." // Updated placeholder
+                        placeholder="Type or use mic..."
                         className="flex-grow placeholder:text-muted-foreground"
                         value={chatbotInput}
                         onChange={(e) => setChatbotInput(e.target.value)}
-                        onKeyDown={handleChatInputKeyDown} // Handle Enter key
-                        disabled={isBotLoading || isChatBotRecording} // Disable if bot loading or recording
+                        onKeyDown={handleChatInputKeyDown}
+                        disabled={isBotLoading || isChatBotRecording}
                         aria-label="Chatbot input"
                     />
                     <Button
-                        onClick={() => handleSendMessageToBot()} // Send text message on click
-                        disabled={isBotLoading || isChatBotRecording || !chatbotInput.trim()} // Disable if bot loading, recording or input empty
+                        onClick={() => handleSendMessageToBot()}
+                        disabled={isBotLoading || isChatBotRecording || !chatbotInput.trim()}
                         size="icon"
                         aria-label="Send message to chatbot"
                     >
@@ -970,26 +959,20 @@ export default function Home() {
           </div>
          </main>
 
-          {/* Footer with external links */}
           <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-muted">
-             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8"> {/* Added flex-wrap and gap for better responsiveness */}
-                 {/* LinkedIn Link */}
+             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
                  <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
                     <Linkedin className="h-10 w-10" data-ai-hint="linkedin logo" />
                  </a>
-                 {/* GitHub Link */}
                  <a href="https://github.com/jcb03" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="GitHub Profile (opens in new tab)">
                     <Github className="h-10 w-10" data-ai-hint="github logo" />
                  </a>
-                  {/* Gmail Link */}
                  <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
                     <GmailIcon className="h-10 w-10" data-ai-hint="gmail logo" />
                  </a>
-                 {/* Microsoft Learn Link */}
                  <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
                     <MicrosoftIcon className="h-10 w-10" data-ai-hint="microsoft logo" />
                  </a>
-                 {/* Coursera Link */}
                  <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
                     <CourseraIcon className="h-10 w-10" data-ai-hint="coursera logo" />
                 </a>
@@ -1001,17 +984,16 @@ export default function Home() {
   );
 }
 
+// Component to conditionally render sidebar title based on context
+// This is to avoid calling useSidebar directly in the Home component's render path
+// before SidebarProvider is established, if isSidebarOpen from Home's state was used directly.
+const ConditionalSidebarHeaderTitle = () => {
+  const { open, isMobile } = useSidebar(); // Use context's 'open' state
+  // On desktop, sidebar is always open as per provider logic.
+  // On mobile, 'open' refers to the sheet state.
+  const shouldShowTitle = isMobile ? open : true;
 
-
-
-    
-
-
-
-
-
-
-
-
-
-
+  return shouldShowTitle ? (
+    <h2 className="text-lg font-bold tracking-tight ml-2 text-sidebar-foreground">Chat History</h2>
+  ) : null;
+};
