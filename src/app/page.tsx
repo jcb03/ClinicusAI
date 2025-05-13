@@ -669,31 +669,31 @@ export default function Home() {
       <Card className="mb-4 shadow-sm border border-border">
         <CardHeader>
           <CardTitle className="text-xl">{`Analysis (${inputType.charAt(0).toUpperCase() + inputType.slice(1)})`}</CardTitle>
-           <CardDescription className="text-foreground">
+           <CardDescription className="text-card-foreground">
             Based on the {inputType} provided:
           </CardDescription>
         </CardHeader>
         <CardContent>
            {analysis.emotion && (
                 <div className="mb-4">
-                    <p className="font-semibold text-lg text-foreground">Detected Emotion:</p>
+                    <p className="font-semibold text-lg text-card-foreground">Detected Emotion:</p>
                     <p className="font-bold text-primary">{analysis.emotion}</p>
                 </div>
             )}
 
           {analysis.conditions.length > 0 ? (
             <>
-             <p className="font-semibold text-lg mb-2 text-foreground">Potential Conditions:</p>
+             <p className="font-semibold text-lg mb-2 text-card-foreground">Potential Conditions:</p>
             {analysis.conditions.map((condition, index) => (
               <div key={index} className="mb-6 last:mb-0 pl-2 border-l-2 border-primary ml-1">
-                <p className="font-semibold text-base text-foreground">{condition.conditionName}</p>
+                <p className="font-semibold text-base text-card-foreground">{condition.conditionName}</p>
                 <p className="text-primary font-extrabold text-sm">
                   <span className="text-primary font-extrabold">Confidence:</span> {condition.confidencePercentage.toFixed(1)}%
                 </p>
                 {condition.suggestedImprovements && condition.suggestedImprovements.length > 0 && (
                      <div className="mt-2">
-                        <h4 className="text-sm font-semibold text-foreground">Suggestions:</h4>
-                        <ul className="list-disc ml-5 mt-1 text-xs space-y-1 text-foreground">
+                        <h4 className="text-sm font-semibold text-card-foreground">Suggestions:</h4>
+                        <ul className="list-disc ml-5 mt-1 text-xs space-y-1 text-card-foreground">
                           {condition.suggestedImprovements.map((suggestion, i) => (
                             <li key={i}>{suggestion}</li>
                           ))}
@@ -705,10 +705,10 @@ export default function Home() {
             </>
           ) : (
               // Show different messages based on whether emotion was detected or not
-              !analysis.emotion && <p className="text-foreground italic">No significant conditions or emotions detected for {inputType}.</p>
+              !analysis.emotion && <p className="text-card-foreground italic">No significant conditions or emotions detected for {inputType}.</p>
           )}
            {/* Message when no conditions but emotion detected */}
-           {analysis.conditions.length === 0 && analysis.emotion && <p className="text-foreground italic">No significant conditions detected for {inputType}.</p>}
+           {analysis.conditions.length === 0 && analysis.emotion && <p className="text-card-foreground italic">No significant conditions detected for {inputType}.</p>}
 
 
         </CardContent>
@@ -741,24 +741,24 @@ export default function Home() {
                 {chatHistory.map((item, index) => (
                   <div key={index} className="chat-history-item p-3 mb-2 rounded bg-card border border-border shadow-sm">
                      {/* Input: Truncate if sidebar is collapsed */}
-                     <p className={`input text-sm mb-1 text-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
-                        <strong className="text-foreground">In:</strong> <span className="text-foreground">{item.input}</span>
+                     <p className={`input text-sm mb-1 text-card-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
+                        <strong className="text-card-foreground">In:</strong> <span className="text-card-foreground">{item.input}</span>
                      </p>
                      {/* Diagnosis: Truncate if sidebar is collapsed */}
-                     <p className={`diagnosis text-sm font-medium text-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
-                        <strong className="text-foreground">Dx:</strong> {item.diagnosis || 'N/A'}
+                     <p className={`diagnosis text-sm font-medium text-card-foreground ${isSidebarOpen ? '' : 'truncate'}`}>
+                        <strong className="text-card-foreground">Dx:</strong> {item.diagnosis || 'N/A'}
                      </p>
                       {/* Emotion: Show if available, truncate if collapsed */}
                      {item.emotion && (
                          <p className={`emotion text-sm font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
-                             <strong className="text-primary font-bold">Em:</strong> <span className="text-foreground">{item.emotion}</span>
+                             <strong className="text-primary font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
                          </p>
                      )}
                   </div>
                 ))}
                  {/* Placeholder if history is empty and sidebar is open */}
                  {chatHistory.length === 0 && isSidebarOpen && (
-                     <p className="text-sm text-foreground p-4 text-center">No history yet.</p>
+                     <p className="text-sm text-muted-foreground p-4 text-center">No history yet.</p>
                  )}
               </div>
           </SidebarContent>
@@ -786,7 +786,7 @@ export default function Home() {
                     <div className="flex flex-col md:w-1/2 w-full space-y-4">
                       <Textarea
                         placeholder="Describe how you're feeling..."
-                        className="min-h-[150px] flex-grow resize-none rounded-md shadow-sm border-input focus:ring-primary focus:border-primary text-base placeholder:text-foreground"
+                        className="min-h-[150px] flex-grow resize-none rounded-md shadow-sm border-input focus:ring-primary focus:border-primary text-base placeholder:text-muted-foreground"
                         value={textInput}
                         onChange={(e) => setTextInput(e.target.value)}
                         aria-label="Text input for mental health analysis"
@@ -891,7 +891,7 @@ export default function Home() {
              {/* Right Column: Chatbot */}
              <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-card shadow-inner"> {/* Added styling */}
                 <CardHeader className="p-2 border-b border-border"> {/* Chatbot title */}
-                    <CardTitle className="text-lg text-center font-semibold text-foreground">ClinicusAI Chat</CardTitle>
+                    <CardTitle className="text-lg text-center font-semibold text-card-foreground">ClinicusAI Chat</CardTitle>
                 </CardHeader>
                 {/* Scrollable chat message area */}
                 <ScrollArea className="flex-grow h-[calc(100vh-400px)] p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}> {/* Added cast */}
@@ -922,13 +922,13 @@ export default function Home() {
                         )}
                          {/* Placeholder message when chat is empty and not loading */}
                          {chatbotHistory.length === 0 && !isBotLoading && !isLoading &&(
-                            <p className="text-center text-foreground italic">
+                            <p className="text-center text-muted-foreground italic">
                                 Chatbot will respond here. Start chatting or analyze input.
                             </p>
                          )}
                          {/* Message while analysis is running */}
                          {isLoading && (
-                             <p className="text-center text-foreground italic">
+                             <p className="text-center text-muted-foreground italic">
                                 Analysis in progress... Chat available after completion.
                             </p>
                          )}
@@ -943,12 +943,12 @@ export default function Home() {
                         disabled={isBotLoading} // Disable if bot is thinking
                         aria-label={isChatBotRecording ? "Stop chatbot voice input" : "Start chatbot voice input"}
                       >
-                        <Mic className={`h-5 w-5 ${isChatBotRecording ? 'text-destructive-foreground' : 'text-foreground'}`} /> {/* Use foreground color */}
+                        <Mic className={`h-5 w-5 ${isChatBotRecording ? 'text-destructive-foreground' : 'text-card-foreground'}`} /> {/* Use card-foreground color */}
                       </Button>
                     <Input
                         type="text"
                         placeholder="Type or use mic..." // Updated placeholder
-                        className="flex-grow placeholder:text-foreground"
+                        className="flex-grow placeholder:text-muted-foreground"
                         value={chatbotInput}
                         onChange={(e) => setChatbotInput(e.target.value)}
                         onKeyDown={handleChatInputKeyDown} // Handle Enter key
@@ -974,23 +974,23 @@ export default function Home() {
           <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-card">
              <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8"> {/* Added flex-wrap and gap for better responsiveness */}
                  {/* LinkedIn Link */}
-                 <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
+                 <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
                     <Linkedin className="h-10 w-10" data-ai-hint="linkedin logo" />
                  </a>
                  {/* GitHub Link */}
-                 <a href="https://github.com/jcb03" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="GitHub Profile (opens in new tab)">
+                 <a href="https://github.com/jcb03" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="GitHub Profile (opens in new tab)">
                     <Github className="h-10 w-10" data-ai-hint="github logo" />
                  </a>
                   {/* Gmail Link */}
-                 <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
+                 <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
                     <GmailIcon className="h-10 w-10" data-ai-hint="gmail logo" />
                  </a>
                  {/* Microsoft Learn Link */}
-                 <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
+                 <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
                     <MicrosoftIcon className="h-10 w-10" data-ai-hint="microsoft logo" />
                  </a>
                  {/* Coursera Link */}
-                 <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-foreground hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
+                 <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
                     <CourseraIcon className="h-10 w-10" data-ai-hint="coursera logo" />
                 </a>
              </div>
@@ -1005,6 +1005,7 @@ export default function Home() {
 
 
     
+
 
 
 
