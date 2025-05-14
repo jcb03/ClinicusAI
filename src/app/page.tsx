@@ -927,9 +927,3 @@ const ConditionalSidebarHeaderTitle = () => {
     <h2 className="text-lg font-bold tracking-tight ml-2 text-sidebar-foreground">Chat History</h2>
   ) : null;
 };
-
-
-    
-
-      
-
