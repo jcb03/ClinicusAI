@@ -818,7 +818,7 @@ export default function Home() {
                  </div>
             </div>
 
-             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-[#F2F0EF] shadow-inner">
+             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-[#FAFAFA] shadow-inner">
                 <CardHeader className="p-2 border-b border-border">
                     <CardTitle className="text-lg text-center font-semibold text-card-foreground">ClinicusAI Chat</CardTitle>
                 </CardHeader>
@@ -932,3 +932,4 @@ const ConditionalSidebarHeaderTitle = () => {
     
 
       
+
