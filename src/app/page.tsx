@@ -66,8 +66,8 @@ const SidebarToggleButton = () => {
       variant="ghost"
       size="icon"
       onClick={toggleSidebar} 
-      disabled={true} // Button is always disabled as sidebar is unretractable
-      className="h-8 w-8 rounded-full hover:bg-primary/10 data-[state=open]:bg-accent"
+      disabled={!isMobile} // Now only enabled on mobile
+      className="h-8 w-8 rounded-full hover:bg-primary/10 data-[state=open]:bg-accent md:hidden" // Hide on medium and up screens
       aria-label="Toggle Sidebar"
     >
       <Menu className="h-6 w-6 text-primary" />
@@ -698,7 +698,7 @@ export default function Home() {
                      </p>
                      {item.emotion && (
                          <p className={`emotion text-sm font-medium ${isSidebarOpen ? '' : 'truncate'}`}>
-                             <strong className="text-card-foreground font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
+                             <strong className="text-black font-bold">Em:</strong> <span className="text-card-foreground">{item.emotion}</span>
                          </p>
                      )}
                   </div>
@@ -709,18 +709,15 @@ export default function Home() {
               </div>
           </SidebarContent>
         </Sidebar>
-
-         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out md:ml-[var(--sidebar-width)]`}> 
+         <div className={`flex flex-col flex-grow pt-4 transition-all duration-300 ease-in-out ${!isSidebarOpen ? 'md:ml-0' : 'md:ml-[var(--sidebar-width)]'}`}>
            <header className="px-6 mb-6">
-            <h1 className="text-3xl font-bold text-center tracking-tight">
-                <span className="text-4xl font-extrabold text-foreground">Clinicus</span>
-                <span className="text-4xl font-extrabold text-primary">AI</span>
+            <h1 className="text-3xl md:text-4xl font-bold text-center tracking-tight">
+                <span className="font-extrabold text-foreground">Clinicus</span>
+                <span className="font-extrabold text-primary">AI</span>
             </h1>
            </header>
-
-          <main className="flex-grow flex justify-center items-start px-4 md:px-6 lg:px-8">
-             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-6 flex flex-col lg:flex-row gap-8 bg-[#FAFAFA]">
-
+          <main className="flex-grow flex justify-center items-start px-4 md:px-6">
+             <div className="w-full max-w-7xl border border-border rounded-lg shadow-lg p-4 md:p-6 flex flex-col lg:flex-row gap-6 md:gap-8 bg-[#FAFAFA]">
             <div className="flex flex-col lg:w-2/3 w-full space-y-6">
                  <div className="flex flex-col md:flex-row gap-6">
                     <div className="flex flex-col md:w-1/2 w-full space-y-4">
@@ -732,12 +729,12 @@ export default function Home() {
                         aria-label="Text input for mental health analysis"
                       />
 
-                      <div className="flex items-center justify-between space-x-3">
+                      <div className="flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0 sm:space-x-3">
                          <Button
                             variant={isRecordingVoice ? "destructive" : "outline"}
                             onClick={isRecordingVoice ? stopRecordingVoice : startRecordingVoice}
                             disabled={isLoading || isRecordingVideo}
-                            className="h-12 flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
+                            className="h-12 w-full sm:flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
                             aria-label={isRecordingVoice ? "Stop voice recording" : "Start voice recording"}
                          >
                             {isRecordingVoice ? "Stop" : "Voice"}
@@ -748,7 +745,7 @@ export default function Home() {
                             variant={isRecordingVideo ? "destructive" : "outline"}
                             onClick={isRecordingVideo ? stopRecordingVideo : startRecordingVideo}
                             disabled={isLoading || isRecordingVoice}
-                            className="h-12 flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
+                            className="h-12 w-full sm:flex-1 flex items-center justify-center text-base rounded-md shadow-sm border border-input hover:bg-accent hover:text-accent-foreground"
                             aria-label={isRecordingVideo ? "Stop video recording" : "Start video recording"}
                         >
                             {isRecordingVideo ? "Stop" : "Video"}
@@ -789,12 +786,12 @@ export default function Home() {
                               )}
                          </div>
                          {!showCamera && (
-                            <div className="w-full aspect-video rounded-md bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground">
+                            <div className="w-full aspect-video rounded-md bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground text-center p-4">
                                 Camera preview appears here when recording video
                             </div>
                           )}
 
-                       <div className="w-full space-y-4 overflow-y-auto max-h-[calc(100vh-450px)] pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-card">
+                       <div className="w-full space-y-4 overflow-y-auto max-h-[calc(100vh-550px)] md:max-h-[calc(100vh-450px)] pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-card">
                          {renderAnalysisResult("Text Analysis", lastTextAnalysis)}
                          {renderAnalysisResult("Voice Analysis", lastVoiceAnalysis)}
                          {renderAnalysisResult("Video Analysis", lastVideoAnalysis)}
@@ -818,11 +815,11 @@ export default function Home() {
                  </div>
             </div>
 
-             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-4 bg-[#FAFAFA] shadow-inner">
+             <div className="flex flex-col lg:w-1/3 w-full space-y-4 border border-border rounded-lg p-2 md:p-4 bg-[#FAFAFA] shadow-inner min-h-[50vh] lg:min-h-0">
                 <CardHeader className="p-2 border-b border-border">
-                    <CardTitle className="text-lg text-center font-semibold text-card-foreground">ClinicusAI Chat</CardTitle>
+                    <CardTitle className="text-lg text-center font-semibold text-black">ClinicusAI Chat</CardTitle>
                 </CardHeader>
-                <ScrollArea className="flex-grow h-[calc(100vh-400px)] p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}>
+                <ScrollArea className="flex-grow h-[calc(100vh-500px)] lg:h-[calc(100vh-400px)] p-2 md:p-4" viewportRef={chatContainerRef as RefObject<HTMLDivElement>}>
                     <div className="space-y-4">
                         {chatbotHistory.map((msg, index) => (
                             <div
@@ -830,7 +827,7 @@ export default function Home() {
                                 className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
-                                    className={`px-4 py-2 rounded-lg max-w-[80%] ${
+                                    className={`px-3 py-2 md:px-4 rounded-lg max-w-[80%] ${
                                         msg.role === 'user'
                                             ? 'bg-primary text-primary-foreground'
                                             : 'bg-muted text-muted-foreground'
@@ -895,21 +892,21 @@ export default function Home() {
          </main>
 
           <footer className="flex justify-center items-center w-full p-4 mt-auto border-t border-border bg-muted">
-             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-8">
-                 <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
-                    <Linkedin className="h-10 w-10" data-ai-hint="linkedin logo" />
+             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8">
+                 <a href="https://www.linkedin.com/in/jai-chaudhary-54bb86221" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-yellow-400 hover:text-primary" aria-label="LinkedIn Profile (opens in new tab)">
+                    <Linkedin className="h-8 w-8 md:h-10 md:w-10" data-ai-hint="linkedin logo" />
                  </a>
-                 <a href="https://github.com/jcb03" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="GitHub Profile (opens in new tab)">
-                    <Github className="h-10 w-10" data-ai-hint="github logo" />
+                 <a href="https://github.com/jcb03" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-yellow-400 hover:text-primary" aria-label="GitHub Profile (opens in new tab)">
+                    <Github className="h-8 w-8 md:h-10 md:w-10" data-ai-hint="github logo" />
                  </a>
-                 <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
-                    <GmailIcon className="h-10 w-10" data-ai-hint="gmail logo" />
+                 <a href="mailto:jaichaudhary0303@gmail.com" className="hover:opacity-80 transition-opacity text-yellow-400 hover:text-primary" aria-label="Send email to jaichaudhary0303@gmail.com">
+                    <GmailIcon className="h-8 w-8 md:h-10 md:w-10" data-ai-hint="gmail logo" />
                  </a>
-                 <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
-                    <MicrosoftIcon className="h-10 w-10" data-ai-hint="microsoft logo" />
+                 <a href="https://learn.microsoft.com/en-us/users/jaichaudhary-6371/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-yellow-400 hover:text-primary" aria-label="Microsoft Learn Profile (opens in new tab)">
+                    <MicrosoftIcon className="h-8 w-8 md:h-10 md:w-10" data-ai-hint="microsoft logo" />
                  </a>
-                 <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-warning hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
-                    <CourseraIcon className="h-10 w-10" data-ai-hint="coursera logo" />
+                 <a href="https://www.coursera.org/user/2e5b8a240f4037ecbe9428660cecf7bd" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity text-yellow-400 hover:text-primary" aria-label="Coursera Profile (opens in new tab)">
+                    <CourseraIcon className="h-8 w-8 md:h-10 md:w-10" data-ai-hint="coursera logo" />
                 </a>
              </div>
           </footer>
@@ -921,9 +918,12 @@ export default function Home() {
 
 const ConditionalSidebarHeaderTitle = () => {
   const { open, isMobile } = useSidebar(); 
-  const shouldShowTitle = isMobile ? open : true;
+  // On desktop, the sidebar is always "open" conceptually, so we always show the title.
+  // On mobile, it depends on the sheet state.
+  const shouldShowTitle = !isMobile || open;
 
   return shouldShowTitle ? (
     <h2 className="text-lg font-bold tracking-tight ml-2 text-sidebar-foreground">Chat History</h2>
   ) : null;
 };
+
